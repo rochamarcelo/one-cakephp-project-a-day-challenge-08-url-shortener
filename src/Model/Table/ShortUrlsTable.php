@@ -54,6 +54,7 @@ class ShortUrlsTable extends Table
     {
         $validator
             ->scalar('url')
+            ->url('url')
             ->maxLength('url', 255)
             ->requirePresence('url', 'create')
             ->notEmptyString('url');
