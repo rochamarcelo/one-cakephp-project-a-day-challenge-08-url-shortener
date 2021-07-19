@@ -59,4 +59,12 @@ class ShortUrlsController extends AppController
         }
         $this->set(compact('shortUrl'));
     }
+
+    public function goToUrl()
+    {
+        $code = $this->request->getParam('code');
+        $entity = $this->ShortUrls->get($code);
+
+        return $this->redirect($entity->url);
+    }
 }

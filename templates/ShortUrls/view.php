@@ -13,7 +13,7 @@
             <p class="text-white"><?=__('Here is your short URL')?></p>
             <p class="text-white"><strong><?=
                 $this->Url->build(
-                    ['action' => 'go', $shortUrl->id],
+                    ['action' => 'go', 'code' => $shortUrl->id],
                     ['fullBase' => true]
                 )?></strong>
             </p>
