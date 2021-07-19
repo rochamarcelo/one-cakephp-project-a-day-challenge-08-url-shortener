@@ -36,11 +36,24 @@ class ShortUrlsController extends AppController
     {
         $shortUrl = $this->ShortUrls->newEmptyEntity();
         if ($this->request->is('post')) {
-            $shortUrl = $this->ShortUrls->patchEntity($shortUrl, $this->request->getData());
+            $url = trim($this->request->getData('url'));
+            $shortUrlExisting = $this->ShortUrls->find()
+                ->where(['url' => $url])
+                ->first();
+            if ($shortUrlExisting) {
+                return $this->redirect([
+                    'action' => 'view',
+                    $shortUrlExisting->id
+                ]);
+            }
+            $shortUrl = $this->ShortUrls->patchEntity($shortUrl, [
+                'url' => $url,
+            ]);
             if ($this->ShortUrls->save($shortUrl)) {
-                $this->Flash->success(__('The short url has been saved.'));
-
-                return $this->redirect(['action' => 'view', $shortUrl->id]);
+                return $this->redirect([
+                    'action' => 'view',
+                    $shortUrl->id
+                ]);
             }
             $this->Flash->error(__('The short url could not be saved. Please, try again.'));
         }
