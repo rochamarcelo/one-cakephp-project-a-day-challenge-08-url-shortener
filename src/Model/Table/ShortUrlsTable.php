@@ -5,6 +5,8 @@ namespace App\Model\Table;
 
 use App\Model\Entity\ShortUrl;
 use Cake\Event\Event;
+use Cake\Http\Client;
+use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -122,4 +124,32 @@ class ShortUrlsTable extends Table
 
         return array_values($available);
     }
+
+    /**
+     * Set rule to check url
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules): RulesChecker
+    {
+        $rules->add(function(ShortUrl  $shortUrl) {
+            if ($shortUrl->isDirty('url')) {
+                try {
+                    $client = Client::createFromUrl($shortUrl->url);
+
+                    return $client->get('')->isOk();
+
+                } catch (\Exception $e) {
+                    return false;
+                }
+            }
+        }, 'canAccessUrl', [
+            'errorField' => 'url',
+            'message' => __('The provided value is invalid'),
+        ]);
+        return $rules;
+    }
+
+
 }
