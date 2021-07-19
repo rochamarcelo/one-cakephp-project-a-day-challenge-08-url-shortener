@@ -4,22 +4,24 @@
  * @var \App\Model\Entity\ShortUrl $shortUrl
  */
 ?>
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"><?= __('Short Url Was Created')?></h5>
-                <h6 class="card-subtitle mb-2 text-muted"><?= __('You can use it now')?></h6>
-                <div class="alert alert-success" role="alert">
-                    <?= $this->Url->build(['action' => 'go', $shortUrl->id], ['fullBase' => true])?>
-                </div>
-                <?= $this->Html->link(
-                    __('Create Other'),
-                    ['action' => 'add'],
-                    ['class' => 'btn btn-secondary']
-                )?>
-            </div>
+<div class="container py-4">
+    <div class="p-5 mb-4 bg-info rounded-3">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold"><?= __('op.loc short urls')?></h1>
+            <p class="col-md-8 fs-4"><?=  __('A CakePHP shortener url for everyone to use')?></p>
+            <hr />
+            <p class="text-white"><?=__('Here is your short URL')?></p>
+            <p class="text-white"><strong><?=
+                $this->Url->build(
+                    ['action' => 'go', $shortUrl->id],
+                    ['fullBase' => true]
+                )?></strong>
+            </p>
+            <?= $this->Html->link(
+                __('Create Other URL'),
+                ['action' => 'add'],
+                ['class' => 'btn btn-primary btn-lg']
+            )?>
         </div>
     </div>
 </div>
-
