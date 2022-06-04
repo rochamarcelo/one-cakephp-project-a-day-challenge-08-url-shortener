@@ -57,10 +57,11 @@ return [
         'webroot' => 'webroot',
         'wwwRoot' => WWW_ROOT,
         //'baseUrl' => env('SCRIPT_NAME'),
-        'fullBaseUrl' => false,
-        'imageBaseUrl' => 'img/',
-        'cssBaseUrl' => 'css/',
-        'jsBaseUrl' => 'js/',
+        'fullBaseUrl' => 'http://127.0.0.1',
+        //assets are serve using npm serve package (cd webroot && serve .)
+        'imageBaseUrl' => 'http://127.0.0.1:3000/img/',
+        'cssBaseUrl' => 'http://127.0.0.1:3000/css/',
+        'jsBaseUrl' => 'http://127.0.0.1:3000/js/',
         'paths' => [
             'plugins' => [ROOT . DS . 'plugins' . DS],
             'templates' => [ROOT . DS . 'templates' . DS],
