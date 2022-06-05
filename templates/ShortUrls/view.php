@@ -13,13 +13,13 @@
             <p class="text-white"><?=__('Here is your short URL')?></p>
             <p class="text-white"><strong><?=
                 $this->Url->build(
-                    ['action' => 'goToUrl', 'code' => $shortUrl->id],
+                    ['controller' => 'ShortUrls', 'action' => 'goToUrl', 'code' => $shortUrl->id],
                     ['fullBase' => true]
                 )?></strong>
             </p>
             <?= $this->Html->link(
                 __('Create Other URL'),
-                ['action' => 'add'],
+                ['controller' => 'ShortUrls', 'action' => 'add'],
                 ['class' => 'btn btn-primary btn-lg']
             )?>
         </div>

@@ -20,6 +20,8 @@ class ShortUrlsController extends AppController
      */
     public function view($id = null)
     {
+        //Enter a sleep state within a coroutine and release the CPU to do other operations in the process.
+        \co::sleep(5);
         $shortUrl = $this->ShortUrls->get($id, [
             'contain' => [],
         ]);
@@ -42,6 +44,7 @@ class ShortUrlsController extends AppController
                 ->first();
             if ($shortUrlExisting) {
                 return $this->redirect([
+                    'controller' => 'ShortUrls',
                     'action' => 'view',
                     $shortUrlExisting->id
                 ]);
@@ -51,6 +54,7 @@ class ShortUrlsController extends AppController
             ]);
             if ($this->ShortUrls->save($shortUrl)) {
                 return $this->redirect([
+                    'controller' => 'ShortUrls',
                     'action' => 'view',
                     $shortUrl->id
                 ]);

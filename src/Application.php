@@ -16,6 +16,8 @@ declare(strict_types=1);
  */
 namespace App;
 
+use App\Routing\Middleware\AppRoutingMiddleware;
+use Cake\Controller\ControllerFactory;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\Exception\MissingPluginException;
@@ -23,11 +25,11 @@ use Cake\Datasource\FactoryLocator;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
-use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
-use Cake\Routing\Middleware\RoutingMiddleware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -37,6 +39,27 @@ use Cake\Routing\Middleware\RoutingMiddleware;
  */
 class Application extends BaseApplication
 {
+    /**
+     * Invoke the application.
+     *
+     * - Convert the PSR response into CakePHP equivalents.
+     * - Create the controller that will handle this request.
+     * - Invoke the controller.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function handle(
+        ServerRequestInterface $request
+    ): ResponseInterface {
+        if ($this->controllerFactory === null) {
+            $this->controllerFactory = new ControllerFactory($this->getContainer());
+        }
+
+        $controller = $this->controllerFactory->create($request);
+
+        return $this->controllerFactory->invoke($controller);
+    }
     /**
      * Load all the application configuration and bootstrap logic.
      *
@@ -91,7 +114,7 @@ class Application extends BaseApplication
             // creating the middleware instance specify the cache config name by
             // using it's second constructor argument:
             // `new RoutingMiddleware($this, '_cake_routes_')`
-            ->add(new RoutingMiddleware($this))
+            ->add(new AppRoutingMiddleware($this))
 
             // Parse various types of encoded request bodies so that they are
             // available as array through $request->getData()
