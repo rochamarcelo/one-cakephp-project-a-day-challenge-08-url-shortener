@@ -26,10 +26,18 @@ use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\MiddlewareQueue;
+use Cake\Http\ServerRequest;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
+use Dflydev\FigCookies\Modifier\SameSite;
+use Dflydev\FigCookies\SetCookie;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Configuration;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use PSR7Sessions\Storageless\Http\SessionMiddleware;
+use PSR7Sessions\Storageless\Session\SessionInterface;
 
 /**
  * Application setup class.
@@ -107,6 +115,38 @@ class Application extends BaseApplication
             ->add(new AssetMiddleware([
                 'cacheTime' => Configure::read('Asset.cacheTime'),
             ]))
+//            ->add(SessionMiddleware::fromSymmetricKeyDefaults(
+//                Configure::read('SessionStorageless.symmetricKey'),
+//                Configure::read('SessionStorageless.expirationTime')
+//            ))
+            ->add(new SessionMiddleware(
+                Configuration::forSymmetricSigner(
+                    new \Lcobucci\JWT\Signer\Hmac\Sha256(),
+                    Configure::read('SessionStorageless.symmetricKey')
+                ),
+                SetCookie::create(Configure::read('SessionStorageless.cookieKey', SessionMiddleware::DEFAULT_COOKIE))
+                    ->withSecure(Configure::read('SessionStorageless.secure') !== false)
+                    ->withHttpOnly(true)
+                    ->withSameSite(SameSite::lax())
+                    ->withPath('/'),
+                Configure::read('SessionStorageless.expirationTime'),
+                new SystemClock(new \DateTimeZone(date_default_timezone_get()))
+            ))
+
+            ->add(function(ServerRequest $request, RequestHandlerInterface $handler) {
+                $session = $request->getAttribute('session');
+                if ($session instanceof SessionInterface) {
+                    $luckNumber = $session->get('LuckNumber');
+                    debug(compact('luckNumber'));
+                    //Should not have value on the first request
+                    if ($luckNumber === null) {
+                        $luckNumber = rand(1000, 2000);
+                        $session->set('LuckNumber', $luckNumber);
+                    }
+                    debug(compact('luckNumber'));
+                }
+                return $handler->handle($request);
+            })
 
             // Add routing middleware.
             // If you have a large number of routes connected, turning on routes
